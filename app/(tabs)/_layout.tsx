@@ -21,7 +21,7 @@ export default function TabLayout() {
           paddingTop: 10,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: "600",
         },
         headerStyle: {
@@ -45,22 +45,33 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="hiragana"
+        name="characters"
         options={{
-          title: "ฮิรางานะ",
-          headerTitle: "📝 ฮิรางานะ",
+          title: "ตัวอักษร",
+          headerTitle: "📝 ตัวอักษร",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="text" size={size} color={color} />
           ),
         }}
       />
+
       <Tabs.Screen
-        name="katakana"
+        name="verbForms"
         options={{
-          title: "คาตากานะ",
-          headerTitle: "📝 คาตากานะ",
+          title: "รูปกริยา",
+          headerTitle: "🔤 รูปกริยา",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="language" size={size} color={color} />
+            <Ionicons name="git-branch" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="particles"
+        options={{
+          title: "คำช่วย",
+          headerTitle: "🔗 คำช่วย",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="link" size={size} color={color} />
           ),
         }}
       />

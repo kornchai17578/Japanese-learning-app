@@ -1,11 +1,24 @@
 import * as Speech from "expo-speech";
 import { useRef, useState } from "react";
-import { Animated, Text, TouchableOpacity, View } from "react-native";
+import {
+  Animated,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { hiraganaData } from "../../data/hiragana";
 import { katakanaData } from "../../data/katakana";
+import { particlesData } from "../../data/particles";
+import { verbFormsData } from "../../data/verbForms";
 import { vocabularyData } from "../../data/vocabulary";
 
-type QuizType = "hiragana" | "katakana" | "vocabulary";
+type QuizType =
+  | "hiragana"
+  | "katakana"
+  | "vocabulary"
+  | "verbForms"
+  | "particles";
 
 interface Question {
   question: string;
@@ -17,11 +30,16 @@ interface Question {
 function generateHiraganaQuestions(): Question[] {
   const allChars = hiraganaData.flatMap((g) => g.characters);
   const questions: Question[] = [];
+  const usedAnswers: Set<string> = new Set();
+  const shuffled = [...allChars].sort(() => Math.random() - 0.5);
 
-  for (let i = 0; i < 10; i++) {
-    const shuffled = [...allChars].sort(() => Math.random() - 0.5);
-    const correct = shuffled[0];
-    const wrongOptions = shuffled.slice(1, 4).map((c) => c.romaji);
+  for (let i = 0; i < Math.min(10, shuffled.length); i++) {
+    const correct = shuffled[i];
+    usedAnswers.add(correct.romaji);
+    const wrongOptions = shuffled
+      .filter((c) => c.romaji !== correct.romaji && !usedAnswers.has(c.romaji))
+      .slice(0, 3)
+      .map((c) => c.romaji);
 
     questions.push({
       question: correct.char,
@@ -39,11 +57,16 @@ function generateHiraganaQuestions(): Question[] {
 function generateKatakanaQuestions(): Question[] {
   const allChars = katakanaData.flatMap((g) => g.characters);
   const questions: Question[] = [];
+  const usedAnswers: Set<string> = new Set();
+  const shuffled = [...allChars].sort(() => Math.random() - 0.5);
 
-  for (let i = 0; i < 10; i++) {
-    const shuffled = [...allChars].sort(() => Math.random() - 0.5);
-    const correct = shuffled[0];
-    const wrongOptions = shuffled.slice(1, 4).map((c) => c.romaji);
+  for (let i = 0; i < Math.min(10, shuffled.length); i++) {
+    const correct = shuffled[i];
+    usedAnswers.add(correct.romaji);
+    const wrongOptions = shuffled
+      .filter((c) => c.romaji !== correct.romaji && !usedAnswers.has(c.romaji))
+      .slice(0, 3)
+      .map((c) => c.romaji);
 
     questions.push({
       question: correct.char,
@@ -60,12 +83,14 @@ function generateKatakanaQuestions(): Question[] {
 
 function generateVocabQuestions(): Question[] {
   const questions: Question[] = [];
+  const usedAnswers: Set<string> = new Set();
   const shuffled = [...vocabularyData].sort(() => Math.random() - 0.5);
 
   for (let i = 0; i < Math.min(10, shuffled.length); i++) {
     const correct = shuffled[i];
+    usedAnswers.add(correct.thai);
     const wrongOptions = shuffled
-      .filter((v) => v.japanese !== correct.japanese)
+      .filter((v) => v.thai !== correct.thai && !usedAnswers.has(v.thai))
       .slice(0, 3)
       .map((v) => v.thai);
 
@@ -74,6 +99,102 @@ function generateVocabQuestions(): Question[] {
       correctAnswer: correct.thai,
       options: [...wrongOptions, correct.thai].sort(() => Math.random() - 0.5),
       audio: correct.hiragana,
+    });
+  }
+
+  return questions;
+}
+
+function generateVerbFormsQuestions(): Question[] {
+  const questions: Question[] = [];
+  const usedAnswers: Set<string> = new Set();
+  const allExamples: {
+    formId: string;
+    form: string;
+    example: {
+      dictionary: string;
+      conjugated: string;
+      hiragana: string;
+      meaning: string;
+    };
+  }[] = [];
+
+  verbFormsData.forEach((form) => {
+    form.examples.forEach((ex) => {
+      allExamples.push({ formId: form.id, form: form.nameThai, example: ex });
+    });
+  });
+
+  const shuffled = [...allExamples].sort(() => Math.random() - 0.5);
+
+  for (let i = 0; i < Math.min(10, shuffled.length); i++) {
+    const correct = shuffled[i];
+    usedAnswers.add(correct.example.meaning);
+    // Get wrong options from DIFFERENT verb forms only
+    const wrongOptions = shuffled
+      .filter(
+        (v) =>
+          v.formId !== correct.formId && !usedAnswers.has(v.example.meaning)
+      )
+      .slice(0, 3)
+      .map((v) => v.example.meaning);
+
+    questions.push({
+      question: `${correct.example.conjugated}\n(${correct.form})`,
+      correctAnswer: correct.example.meaning,
+      options: [...wrongOptions, correct.example.meaning].sort(
+        () => Math.random() - 0.5
+      ),
+      audio: correct.example.conjugated,
+    });
+  }
+
+  return questions;
+}
+
+function generateParticlesQuestions(): Question[] {
+  const questions: Question[] = [];
+  const usedAnswers: Set<string> = new Set();
+  const allParticles: {
+    groupId: string;
+    particle: {
+      id: string;
+      particle: string;
+      reading: string;
+      nameThai: string;
+      description: string;
+      emoji: string;
+      color: string;
+    };
+  }[] = [];
+
+  particlesData.forEach((group) => {
+    group.particles.forEach((p) => {
+      allParticles.push({ groupId: group.id, particle: p });
+    });
+  });
+
+  const shuffled = [...allParticles].sort(() => Math.random() - 0.5);
+
+  for (let i = 0; i < Math.min(10, shuffled.length); i++) {
+    const correct = shuffled[i];
+    usedAnswers.add(correct.particle.nameThai);
+    // Get wrong options from DIFFERENT particle groups only
+    const wrongOptions = shuffled
+      .filter(
+        (p) =>
+          p.groupId !== correct.groupId && !usedAnswers.has(p.particle.nameThai)
+      )
+      .slice(0, 3)
+      .map((p) => p.particle.nameThai);
+
+    questions.push({
+      question: correct.particle.particle,
+      correctAnswer: correct.particle.nameThai,
+      options: [...wrongOptions, correct.particle.nameThai].sort(
+        () => Math.random() - 0.5
+      ),
+      audio: correct.particle.particle,
     });
   }
 
@@ -98,8 +219,12 @@ export default function QuizScreen() {
       newQuestions = generateHiraganaQuestions();
     } else if (type === "katakana") {
       newQuestions = generateKatakanaQuestions();
-    } else {
+    } else if (type === "vocabulary") {
       newQuestions = generateVocabQuestions();
+    } else if (type === "verbForms") {
+      newQuestions = generateVerbFormsQuestions();
+    } else {
+      newQuestions = generateParticlesQuestions();
     }
     setQuestions(newQuestions);
     setCurrentIndex(0);
@@ -152,39 +277,66 @@ export default function QuizScreen() {
   // Menu screen
   if (!quizType) {
     return (
-      <View className="flex-1 bg-green-50 items-center justify-center px-6">
-        <Text className="text-6xl mb-4">🎯</Text>
-        <Text className="text-3xl font-bold text-green-600 mb-2">
-          ทดสอบความรู้
-        </Text>
-        <Text className="text-gray-500 mb-8">เลือกประเภทข้อสอบ</Text>
+      <View className="flex-1 bg-green-50">
+        <ScrollView className="flex-1 px-6 pt-8">
+          <View className="items-center mb-6">
+            <Text className="text-6xl mb-4">🎯</Text>
+            <Text className="text-3xl font-bold text-green-600 mb-2">
+              ทดสอบความรู้
+            </Text>
+            <Text className="text-gray-500">เลือกประเภทข้อสอบ</Text>
+          </View>
 
-        <TouchableOpacity
-          onPress={() => startQuiz("hiragana")}
-          className="bg-pink-500 rounded-2xl px-8 py-4 mb-4 w-full"
-        >
-          <Text className="text-white text-xl font-bold text-center">
-            📝 ฮิรางานะ
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => startQuiz("hiragana")}
+            className="bg-pink-500 rounded-2xl px-8 py-4 mb-4"
+          >
+            <Text className="text-white text-xl font-bold text-center">
+              📝 ฮิรางานะ
+            </Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => startQuiz("katakana")}
-          className="bg-teal-500 rounded-2xl px-8 py-4 mb-4 w-full"
-        >
-          <Text className="text-white text-xl font-bold text-center">
-            📝 คาตากานะ
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => startQuiz("katakana")}
+            className="bg-teal-500 rounded-2xl px-8 py-4 mb-4"
+          >
+            <Text className="text-white text-xl font-bold text-center">
+              📝 คาตากานะ
+            </Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => startQuiz("vocabulary")}
-          className="bg-yellow-500 rounded-2xl px-8 py-4 w-full"
-        >
-          <Text className="text-white text-xl font-bold text-center">
-            📚 คำศัพท์
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => startQuiz("vocabulary")}
+            className="rounded-2xl px-8 py-4 mb-4"
+            style={{ backgroundColor: "#E6A700" }}
+          >
+            <Text className="text-white text-xl font-bold text-center">
+              📚 คำศัพท์
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => startQuiz("verbForms")}
+            className="rounded-2xl px-8 py-4 mb-4"
+            style={{ backgroundColor: "#F9844A" }}
+          >
+            <Text className="text-white text-xl font-bold text-center">
+              🔤 รูปกริยา
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => startQuiz("particles")}
+            className="rounded-2xl px-8 py-4 mb-4"
+            style={{ backgroundColor: "#9B5DE5" }}
+          >
+            <Text className="text-white text-xl font-bold text-center">
+              🔗 คำช่วย
+            </Text>
+          </TouchableOpacity>
+
+          <View className="h-10" />
+        </ScrollView>
       </View>
     );
   }
@@ -270,7 +422,7 @@ export default function QuizScreen() {
         style={{ transform: [{ scale: bounceAnim }] }}
         className="bg-white rounded-3xl p-8 items-center mb-6 shadow-lg"
       >
-        <Text className="text-6xl mb-4">{question.question}</Text>
+        <Text className="text-4xl mb-4 text-center">{question.question}</Text>
         <TouchableOpacity
           onPress={playAudio}
           className="bg-blue-100 rounded-full px-4 py-2"
@@ -280,7 +432,7 @@ export default function QuizScreen() {
       </Animated.View>
 
       {/* Options */}
-      <View className="space-y-3">
+      <ScrollView className="flex-1">
         {question.options.map((option, index) => {
           let bgColor = "bg-white";
           if (selectedAnswer === option) {
@@ -306,11 +458,11 @@ export default function QuizScreen() {
             </TouchableOpacity>
           );
         })}
-      </View>
+      </ScrollView>
 
       {/* Feedback */}
       {isCorrect !== null && (
-        <View className="items-center mt-6">
+        <View className="items-center py-4">
           <Text className="text-4xl">
             {isCorrect ? "🎉 ถูกต้อง!" : "😅 ลองอีกครั้ง"}
           </Text>

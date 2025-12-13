@@ -55,12 +55,11 @@ function VocabCard({ item }: { item: VocabularyItem }) {
 
 export default function VocabularyScreen() {
   const categories = Object.keys(categoryNames);
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
 
-  const filteredVocab =
-    selectedCategory === "all"
-      ? vocabularyData
-      : vocabularyData.filter((item) => item.category === selectedCategory);
+  const filteredVocab = vocabularyData.filter(
+    (item) => item.category === selectedCategory
+  );
 
   return (
     <View className="flex-1 bg-yellow-50">
@@ -70,20 +69,6 @@ export default function VocabularyScreen() {
         showsHorizontalScrollIndicator={false}
         className="max-h-14 px-2 py-2"
       >
-        <TouchableOpacity
-          onPress={() => setSelectedCategory("all")}
-          className={`px-4 py-2 mx-1 rounded-full ${
-            selectedCategory === "all" ? "bg-yellow-500" : "bg-white"
-          }`}
-        >
-          <Text
-            className={`font-bold ${
-              selectedCategory === "all" ? "text-white" : "text-yellow-600"
-            }`}
-          >
-            📚 ทั้งหมด
-          </Text>
-        </TouchableOpacity>
         {categories.map((cat) => (
           <TouchableOpacity
             key={cat}

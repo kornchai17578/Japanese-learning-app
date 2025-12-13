@@ -10,28 +10,36 @@ import {
 
 const menuItems = [
   {
-    id: "hiragana",
-    title: "ฮิรางานะ",
-    subtitle: "あいうえお",
+    id: "characters",
+    title: "ตัวอักษร",
+    subtitle: "ฮิรางานะ & คาตากานะ",
     emoji: "📝",
     color: "#FF6B9D",
-    route: "/hiragana",
-  },
-  {
-    id: "katakana",
-    title: "คาตากานะ",
-    subtitle: "アイウエオ",
-    emoji: "📝",
-    color: "#4ECDC4",
-    route: "/katakana",
+    route: "/characters",
   },
   {
     id: "vocabulary",
     title: "คำศัพท์",
     subtitle: "300+ คำ 16 หมวด",
     emoji: "📚",
-    color: "#FFE66D",
+    color: "#E6A700",
     route: "/vocabulary",
+  },
+  {
+    id: "verbForms",
+    title: "รูปกริยา",
+    subtitle: "12 รูปหลัก",
+    emoji: "🔤",
+    color: "#F9844A",
+    route: "/verbForms",
+  },
+  {
+    id: "particles",
+    title: "คำช่วย",
+    subtitle: "25 คำช่วยหลัก",
+    emoji: "🔗",
+    color: "#9B5DE5",
+    route: "/particles",
   },
   {
     id: "sentences",
@@ -46,7 +54,7 @@ const menuItems = [
     title: "ทดสอบ",
     subtitle: "เก็บคะแนน ⭐",
     emoji: "❓",
-    color: "#95E1D3",
+    color: "#2D9B83",
     route: "/quiz",
   },
 ];
@@ -111,23 +119,6 @@ export default function HomeScreen() {
           <Text className="text-lg text-gray-500">
             มาเรียนภาษาญี่ปุ่นกันเถอะ!
           </Text>
-        </View>
-
-        {/* Progress Card */}
-        <View className="bg-white rounded-3xl p-5 mb-6 shadow-md">
-          <View className="flex-row items-center justify-between">
-            <View>
-              <Text className="text-gray-500">ความก้าวหน้า</Text>
-              <Text className="text-2xl font-bold text-pink-500">เริ่มต้น</Text>
-            </View>
-            <View className="flex-row">
-              <Text className="text-3xl">⭐</Text>
-              <Text className="text-2xl font-bold text-yellow-500 ml-1">0</Text>
-            </View>
-          </View>
-          <View className="bg-gray-200 rounded-full h-3 mt-3">
-            <View className="bg-pink-400 rounded-full h-3 w-1/12" />
-          </View>
         </View>
 
         {/* Menu Items */}
