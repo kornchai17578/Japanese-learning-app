@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "2f2f605d-a298-4f5d-9272-d56ec0103ae7"
+      }
+    },
+    "android": {
+      "package": "com.kornchai.japaneselearningapp"
+    }
+  }
+}
